@@ -1,15 +1,23 @@
 import React from 'react';
+import useStores from '../stores';
 import styled from 'styled-components';
+import { observer } from 'mobx-react-lite';
 
-function Header() {
+const Header = observer(() => {
+  const { gameStore: store } = useStores();
+
+  const handleClickReset = () => {
+    store.reset();
+  };
+
   return (
     <HeaderWrapper>
-      <div>mine count</div>
-      <button>reset button</button>
-      <div>timer</div>
+      <div>{store.minesCount}</div>
+      <button onClick={handleClickReset}>😊</button>
+      <div>{store.time}</div>
     </HeaderWrapper>
   );
-}
+});
 
 const HeaderWrapper = styled.div`
   display: flex;

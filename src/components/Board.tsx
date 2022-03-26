@@ -6,15 +6,15 @@ import { observer } from 'mobx-react-lite';
 import { CellEnum, CellState } from '../types/Cell';
 
 function getDisplayCell(cell: CellState) {
-  if (!cell.isEmpty) {
+  if (cell.isOpen) {
     switch (cell.display) {
-      case CellEnum.FLAG:
-        return '깃발';
       case CellEnum.MINE:
-        return '지뢰';
+        return '💣';
       case CellEnum.NUM:
         return cell.num;
     }
+  } else if (cell.isFlag) {
+    return '🏴';
   }
 }
 
@@ -25,19 +25,27 @@ const Board = observer(() => {
     if (store.gameState !== GameState.START) {
       store.start();
     }
+    const target = e.target as HTMLElement;
+    const [col, row] = target.id.split('-').map(str => Number(str));
+    if (store.cellBoard[col][row].display === CellEnum.MINE) store.end();
+    // if (store.cellBoard[col][row].isOpen) return;
+    store.setOpenCell(col, row);
+  };
+
+  const handleRightClick = (e: MouseEvent) => {
+    e.preventDefault();
+    console.log(e.target);
+    if (store.gameState !== GameState.START) {
+      store.start();
+    }
 
     const target = e.target as HTMLElement;
     const [col, row] = target.id.split('-').map(str => Number(str));
-
-    if (store.cellBoard[col][row].display === CellEnum.MINE) {
-      store.end();
-    } else {
-      store.cellBoard[col][row].isEmpty = false;
-    }
+    store.setFlag(col, row);
   };
 
   return (
-    <BoardWrapper width={store.width} height={store.height} onClick={handleClick}>
+    <BoardWrapper width={store.width} height={store.height} onClick={handleClick} onContextMenu={handleRightClick}>
       {store.cellBoard.map((col, cIndex) =>
         col.map((cell, index) => {
           if (cell.display === CellEnum.WALL) return;
