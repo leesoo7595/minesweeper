@@ -1,4 +1,4 @@
-import { makeAutoObservable, toJS } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import { CellEnum, CellState } from '../types/Cell';
 import { GameState } from '../types/GameState';
 
@@ -80,6 +80,7 @@ class GameStore {
         this.cellBoard[i][j].isOpen = true;
       }
     }
+    this.remainingMinesCount = 0;
     window.clearInterval(this.timerId);
     this.timerId = 0;
   }
