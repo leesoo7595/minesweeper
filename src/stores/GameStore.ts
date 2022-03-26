@@ -1,4 +1,4 @@
-import { makeAutoObservable, autorun } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import { CellEnum, CellState } from '../types/Cell';
 import { GameState } from '../types/GameState';
 
@@ -122,6 +122,12 @@ class GameStore {
 
   getCellData(x: number, y: number) {
     return this.cellBoard[x][y];
+  }
+
+  isSuccess() {
+    if (this.remainingMinesCount === 0 && this.checkSuccess()) {
+      this.success();
+    }
   }
 
   setOpenCell(x: number, y: number) {

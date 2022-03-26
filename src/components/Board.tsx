@@ -4,35 +4,34 @@ import styled from 'styled-components';
 import { GameState } from '../types/GameState';
 import { observer } from 'mobx-react-lite';
 import { CellEnum, CellState } from '../types/Cell';
+import { EventMouseButton } from '../types/Event';
 
-const Board = observer(() => {
+const Board: React.FC = () => {
   const { gameStore: store } = useStores();
 
-  const handleClick = (e: MouseEvent) => {
-    if (store.gameState !== GameState.START) {
-      store.start();
-    }
-    const target = e.target as HTMLElement;
-    const [col, row] = target.id.split('-').map(str => Number(str));
-    if (store.getCellData(col, row)?.display === CellEnum.MINE) store.end();
+  const handleLeftClick = (col: number, row: number) => {
+    if (store.getCellData(col, row).display === CellEnum.MINE) store.end();
     store.setOpenCell(col, row);
   };
 
-  const handleRightClick = (e: MouseEvent) => {
+  const handleRightClick = (col: number, row: number) => {
+    store.setFlag(col, row);
+    store.isSuccess();
+  };
+
+  const handleClick = (e: MouseEvent) => {
     e.preventDefault();
     if (store.gameState !== GameState.START) {
       store.start();
     }
     const target = e.target as HTMLElement;
-    const [col, row] = target.id.split('-').map(str => Number(str));
-    store.setFlag(col, row);
-    if (store.remainingMinesCount === 0 && store.checkSuccess()) {
-      return store.success();
-    }
+    const [col, row] = target.id.split('-').map(Number);
+    if (e.button === EventMouseButton.RIGHT_CLICK) handleRightClick(col, row);
+    if (e.button === EventMouseButton.LEFT_CLICK) handleLeftClick(col, row);
   };
 
   return (
-    <BoardWrapper width={store.width} height={store.height} onClick={handleClick} onContextMenu={handleRightClick}>
+    <BoardWrapper width={store.width} height={store.height} onMouseDown={handleClick} onContextMenu={e => e.preventDefault()}>
       {store.cellBoard.map((col, cIndex) =>
         col.map((cell, index) => {
           if (cell.display === CellEnum.WALL) return;
@@ -45,7 +44,7 @@ const Board = observer(() => {
       )}
     </BoardWrapper>
   );
-});
+};
 
 function getDisplayCell(cell: CellState) {
   if (cell.isOpen) {
@@ -78,4 +77,4 @@ const Cell = styled.div<{ isOpen: boolean }>`
   cursor: pointer;
 `;
 
-export default Board;
+export default observer(Board);

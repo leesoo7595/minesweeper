@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react-lite';
 import { GameState } from '../types/GameState';
 
-const Header = observer(() => {
+const Header: React.FC = () => {
   const { gameStore: store } = useStores();
 
   const handleClickReset = () => {
@@ -14,11 +14,24 @@ const Header = observer(() => {
   return (
     <HeaderWrapper>
       <div>{store.remainingMinesCount}</div>
-      <button onClick={handleClickReset}>{store.gameState === GameState.SUCCESS ? '😍' : '😊'}</button>
+      <button onClick={handleClickReset}>{getGameStateEmoji(store.gameState)}</button>
       <div>{store.time}</div>
     </HeaderWrapper>
   );
-});
+};
+
+function getGameStateEmoji(gameState: GameState) {
+  switch (gameState) {
+    case GameState.SUCCESS:
+      return '😍';
+    case GameState.READY:
+      return '😊';
+    case GameState.OVER:
+      return '😩';
+    default:
+      return '😊';
+  }
+}
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -27,4 +40,5 @@ const HeaderWrapper = styled.div`
   width: 100%;
   padding-bottom: 1rem;
 `;
-export default Header;
+
+export default observer(Header);

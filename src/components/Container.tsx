@@ -1,12 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-interface ContainerProps {
-  children: JSX.Element[];
-}
-function Container({ children }: ContainerProps) {
+const Container: React.FC = ({ children }) => {
   return <ContainerWrapper>{children}</ContainerWrapper>;
-}
+};
 
 const ContainerWrapper = styled.div`
   display: flex;
