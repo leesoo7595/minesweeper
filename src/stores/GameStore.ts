@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, toJS } from 'mobx';
 import { CellEnum, CellState } from '../types/Cell';
 import { GameState } from '../types/GameState';
 
@@ -24,6 +24,7 @@ class GameStore {
   cellBoard: CellState[][] = [];
   time = 0;
   timerId = 0;
+  rankList: (string | number)[] = JSON.parse(localStorage.getItem('rankList') as string) || [];
 
   private initBoard() {
     for (let i = 0; i < this.width + 2; i++) {
@@ -83,7 +84,7 @@ class GameStore {
     this.timerId = 0;
   }
 
-  checkSuccess() {
+  private checkSuccess() {
     let check = 0;
     for (let i = 1; i < this.width + 1; i++) {
       for (let j = 1; j < this.height + 1; j++) {
@@ -95,7 +96,7 @@ class GameStore {
     return check === this.minesCount;
   }
 
-  success() {
+  private success() {
     this.gameState = GameState.SUCCESS;
     for (let i = 0; i < this.width + 2; i++) {
       for (let j = 0; j < this.height + 2; j++) {
@@ -106,6 +107,12 @@ class GameStore {
     }
     window.clearInterval(this.timerId);
     this.timerId = 0;
+    this.setRank();
+  }
+
+  private setRank() {
+    this.rankList = [...this.rankList, this.time].sort((rankA, rankB) => Number(rankA) - Number(rankB));
+    localStorage.setItem('rankList', JSON.stringify([...this.rankList]));
   }
 
   reset() {
@@ -122,6 +129,10 @@ class GameStore {
 
   getCellData(x: number, y: number) {
     return this.cellBoard[x][y];
+  }
+
+  getRank() {
+    return this.rankList;
   }
 
   isSuccess() {
