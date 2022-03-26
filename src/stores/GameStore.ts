@@ -1,4 +1,4 @@
-import { makeAutoObservable, action, observable, toJS } from 'mobx';
+import { makeAutoObservable, autorun } from 'mobx';
 import { CellEnum, CellState } from '../types/Cell';
 import { GameState } from '../types/GameState';
 
@@ -11,15 +11,7 @@ const initCellState: CellState = {
 
 class GameStore {
   constructor() {
-    makeAutoObservable(this, {
-      width: observable,
-      height: observable,
-      gameState: observable,
-      minesCount: observable,
-      cellBoard: observable,
-      reset: action,
-      setFlag: action,
-    });
+    makeAutoObservable(this);
     this.initBoard();
     this.initMines();
   }
@@ -28,6 +20,7 @@ class GameStore {
   height = 8;
   gameState: GameState = GameState.READY;
   minesCount = 10;
+  remainingMinesCount = 10;
   cellBoard: CellState[][] = [];
   time = 0;
   timerId = 0;
@@ -66,18 +59,17 @@ class GameStore {
         count -= 1;
       }
     }
-    console.log(toJS(this.cellBoard));
+  }
+
+  private timer() {
+    this.timerId = window.setInterval(() => {
+      this.setTimer();
+    }, 1000);
   }
 
   start() {
     this.gameState = GameState.START;
     this.timer();
-  }
-
-  timer() {
-    this.timerId = window.setInterval(() => {
-      this.setTimer();
-    }, 1000);
   }
 
   end() {
@@ -91,20 +83,50 @@ class GameStore {
     this.timerId = 0;
   }
 
+  checkSuccess() {
+    let check = 0;
+    for (let i = 1; i < this.width + 1; i++) {
+      for (let j = 1; j < this.height + 1; j++) {
+        if (this.cellBoard[i][j].display === CellEnum.MINE && this.cellBoard[i][j].isFlag) {
+          check += 1;
+        }
+      }
+    }
+    return check === this.minesCount;
+  }
+
+  success() {
+    this.gameState = GameState.SUCCESS;
+    for (let i = 0; i < this.width + 2; i++) {
+      for (let j = 0; j < this.height + 2; j++) {
+        if (this.cellBoard[i][j].display === CellEnum.NUM) {
+          this.cellBoard[i][j].isOpen = true;
+        }
+      }
+    }
+    window.clearInterval(this.timerId);
+    this.timerId = 0;
+  }
+
   reset() {
     window.clearInterval(this.timerId);
     this.time = 0;
     this.timerId = 0;
     this.gameState = GameState.READY;
     this.minesCount = 10;
+    this.remainingMinesCount = 10;
     this.cellBoard = [];
     this.initBoard();
     this.initMines();
   }
 
+  getCellData(x: number, y: number) {
+    return this.cellBoard[x][y];
+  }
+
   setOpenCell(x: number, y: number) {
-    if (this.cellBoard[x][y].display === CellEnum.WALL) return;
-    if (this.cellBoard[x][y].isOpen) return;
+    if (this.cellBoard[x][y]?.display === CellEnum.WALL) return;
+    if (this.cellBoard[x][y]?.isOpen) return;
     this.cellBoard[x][y].isOpen = true;
     this.cellBoard[x][y].display = CellEnum.NUM;
 
@@ -124,11 +146,10 @@ class GameStore {
     if (this.cellBoard[x][y].isOpen) return;
     this.cellBoard[x][y].isFlag = !this.cellBoard[x][y].isFlag;
     if (this.cellBoard[x][y].isFlag) {
-      this.minesCount -= 1;
+      this.remainingMinesCount -= 1;
     } else {
-      this.minesCount += 1;
+      this.remainingMinesCount += 1;
     }
-    console.log('flag', this.cellBoard[x][y].display);
   }
 
   setTimer() {

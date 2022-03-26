@@ -5,19 +5,6 @@ import { GameState } from '../types/GameState';
 import { observer } from 'mobx-react-lite';
 import { CellEnum, CellState } from '../types/Cell';
 
-function getDisplayCell(cell: CellState) {
-  if (cell.isOpen) {
-    switch (cell.display) {
-      case CellEnum.MINE:
-        return '💣';
-      case CellEnum.NUM:
-        return cell.num ? cell.num : '';
-    }
-  } else if (cell.isFlag) {
-    return '🏴';
-  }
-}
-
 const Board = observer(() => {
   const { gameStore: store } = useStores();
 
@@ -27,21 +14,21 @@ const Board = observer(() => {
     }
     const target = e.target as HTMLElement;
     const [col, row] = target.id.split('-').map(str => Number(str));
-    if (store.cellBoard[col][row].display === CellEnum.MINE) store.end();
-    // if (store.cellBoard[col][row].isOpen) return;
+    if (store.getCellData(col, row)?.display === CellEnum.MINE) store.end();
     store.setOpenCell(col, row);
   };
 
   const handleRightClick = (e: MouseEvent) => {
     e.preventDefault();
-    console.log(e.target);
     if (store.gameState !== GameState.START) {
       store.start();
     }
-
     const target = e.target as HTMLElement;
     const [col, row] = target.id.split('-').map(str => Number(str));
     store.setFlag(col, row);
+    if (store.remainingMinesCount === 0 && store.checkSuccess()) {
+      return store.success();
+    }
   };
 
   return (
@@ -59,6 +46,19 @@ const Board = observer(() => {
     </BoardWrapper>
   );
 });
+
+function getDisplayCell(cell: CellState) {
+  if (cell.isOpen) {
+    switch (cell.display) {
+      case CellEnum.MINE:
+        return '💣';
+      case CellEnum.NUM:
+        return cell.num ? cell.num : '';
+    }
+  } else if (cell.isFlag) {
+    return '🏴';
+  }
+}
 
 const BoardWrapper = styled.div<{ width: number; height: number }>`
   display: grid;

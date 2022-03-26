@@ -2,6 +2,7 @@ import React from 'react';
 import useStores from '../stores';
 import styled from 'styled-components';
 import { observer } from 'mobx-react-lite';
+import { GameState } from '../types/GameState';
 
 const Header = observer(() => {
   const { gameStore: store } = useStores();
@@ -12,8 +13,8 @@ const Header = observer(() => {
 
   return (
     <HeaderWrapper>
-      <div>{store.minesCount}</div>
-      <button onClick={handleClickReset}>😊</button>
+      <div>{store.remainingMinesCount}</div>
+      <button onClick={handleClickReset}>{store.gameState === GameState.SUCCESS ? '😍' : '😊'}</button>
       <div>{store.time}</div>
     </HeaderWrapper>
   );
