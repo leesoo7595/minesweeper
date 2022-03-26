@@ -11,7 +11,7 @@ function getDisplayCell(cell: CellState) {
       case CellEnum.MINE:
         return '💣';
       case CellEnum.NUM:
-        return cell.num;
+        return cell.num ? cell.num : '';
     }
   } else if (cell.isFlag) {
     return '🏴';
@@ -50,7 +50,7 @@ const Board = observer(() => {
         col.map((cell, index) => {
           if (cell.display === CellEnum.WALL) return;
           return (
-            <Cell id={`${cIndex}-${index}`} key={`${cIndex}-${index}`}>
+            <Cell id={`${cIndex}-${index}`} key={`${cIndex}-${index}`} isOpen={cell.isOpen}>
               {getDisplayCell(cell)}
             </Cell>
           );
@@ -69,9 +69,12 @@ const BoardWrapper = styled.div<{ width: number; height: number }>`
   border: 1px solid gray;
 `;
 
-const Cell = styled.div`
-  text-align: center;
+const Cell = styled.div<{ isOpen: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid gray;
+  background-color: ${({ isOpen }) => (isOpen ? '#d3d3d3' : 'transparent')};
   cursor: pointer;
 `;
 

@@ -103,14 +103,31 @@ class GameStore {
   }
 
   setOpenCell(x: number, y: number) {
+    if (this.cellBoard[x][y].display === CellEnum.WALL) return;
     if (this.cellBoard[x][y].isOpen) return;
     this.cellBoard[x][y].isOpen = true;
     this.cellBoard[x][y].display = CellEnum.NUM;
+
+    if (!this.cellBoard[x][y].num) {
+      this.setOpenCell(x, y + 1);
+      this.setOpenCell(x, y - 1);
+      this.setOpenCell(x + 1, y);
+      this.setOpenCell(x + 1, y + 1);
+      this.setOpenCell(x + 1, y - 1);
+      this.setOpenCell(x - 1, y);
+      this.setOpenCell(x - 1, y + 1);
+      this.setOpenCell(x - 1, y - 1);
+    }
   }
 
   setFlag(x: number, y: number) {
     if (this.cellBoard[x][y].isOpen) return;
     this.cellBoard[x][y].isFlag = !this.cellBoard[x][y].isFlag;
+    if (this.cellBoard[x][y].isFlag) {
+      this.minesCount -= 1;
+    } else {
+      this.minesCount += 1;
+    }
     console.log('flag', this.cellBoard[x][y].display);
   }
 
