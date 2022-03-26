@@ -13,9 +13,9 @@ const ContainerWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 50%;
-  height: 50%;
-  margin: 25%;
+  width: 40%;
+  min-width: 450px;
+  height: 55%;
   border: 1px solid gray;
 `;
 
