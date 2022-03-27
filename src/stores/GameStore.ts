@@ -128,8 +128,9 @@ class GameStore {
     this.initMines();
   }
 
-  getCellData(x: number, y: number) {
-    return this.cellBoard[x][y];
+  isCellMineOrFlag(x: number, y: number) {
+    if (this.cellBoard[x][y].isFlag) return;
+    if (this.cellBoard[x][y].display === CellEnum.MINE) return this.end();
   }
 
   getRank() {
@@ -143,8 +144,9 @@ class GameStore {
   }
 
   setOpenCell(x: number, y: number) {
-    if (this.cellBoard[x][y]?.display === CellEnum.WALL) return;
-    if (this.cellBoard[x][y]?.isOpen) return;
+    if (this.cellBoard[x][y].display === CellEnum.WALL) return;
+    if (this.cellBoard[x][y].isFlag) return;
+    if (this.cellBoard[x][y].isOpen) return;
     this.cellBoard[x][y].isOpen = true;
     this.cellBoard[x][y].display = CellEnum.NUM;
 

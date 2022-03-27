@@ -10,7 +10,7 @@ const Board: React.FC = () => {
   const { gameStore: store } = useStores();
 
   const handleLeftClick = (col: number, row: number) => {
-    if (store.getCellData(col, row).display === CellEnum.MINE) store.end();
+    store.isCellMineOrFlag(col, row);
     store.setOpenCell(col, row);
   };
 
@@ -20,7 +20,6 @@ const Board: React.FC = () => {
   };
 
   const handleClick = (e: MouseEvent) => {
-    e.preventDefault();
     if (store.gameState !== GameState.START) {
       store.start();
     }
